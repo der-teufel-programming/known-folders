@@ -244,10 +244,10 @@ fn getPathXdg(
             if (!folder_spec.env.user_dir)
                 break :fallback;
 
-            const env = xdgUserDirLookup(System, system, io, allocator, folder_spec.env.name) catch |err| switch (err) {
+            const env = (xdgUserDirLookup(System, system, io, allocator, folder_spec.env.name) catch |err| switch (err) {
                 error.OutOfMemory, error.Canceled => |e| return e,
                 else => break :fallback,
-            } orelse break :fallback;
+            }) orelse break :fallback;
 
             break :env_opt .{ env, true };
         };
@@ -405,7 +405,7 @@ fn xdgUserDirLookup(
     /// - `XDG_VIDEOS_DIR`
     folder_type: []const u8,
 ) UserDirLookupError!?[]u8 {
-    if (builtin.mode == .Debug) {
+    if (builtin.mode == .debug) {
         std.debug.assert(std.mem.startsWith(u8, folder_type, "XDG_"));
         std.debug.assert(std.mem.endsWith(u8, folder_type, "_DIR"));
 
